@@ -12,7 +12,7 @@ export const postRouter = createTRPCRouter({
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
       return {
-        greeting: `Hello ${input.text}`,
+        greeting: `Greetings ${input.text}`,
       };
     }),
 
@@ -32,6 +32,17 @@ export const postRouter = createTRPCRouter({
     return ctx.db.query.posts.findFirst({
       orderBy: (posts, { desc }) => [desc(posts.createdAt)],
     });
+  }),
+
+  getLastWeek: publicProcedure.query(({ctx}) => {
+    return ctx.db.query.posts.findMany({
+      orderBy: (posts, { asc }) => [asc(posts.createdAt)],
+      where: (posts, {gt}) => {
+        const date = new Date(); 
+        date.setUTCDate(date.getUTCDate() - 7); //date 7 days ago
+        return gt(posts.createdAt, date)
+      }
+    })
   }),
 
   getSecretMessage: protectedProcedure.query(() => {
