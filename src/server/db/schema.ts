@@ -1,7 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   index,
-  int,
+  integer,
   primaryKey,
   sqliteTableCreator,
   text,
@@ -16,18 +16,17 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = sqliteTableCreator((name) => `t3test_${name}`);
 
-export const posts = createTable(
-  "post",
+export const posts = createTable("post",
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     name: text("name", { length: 256 }),
     createdById: text("createdById", { length: 255 })
       .notNull()
       .references(() => users.id),
-    createdAt: int("created_at", { mode: "timestamp" })
-      .default(sql`CURRENT_TIMESTAMP`)
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
       .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }),
+    updatedAt: integer("updatedAt", { mode: "timestamp" }),
   },
   (example) => ({
     createdByIdIdx: index("createdById_idx").on(example.createdById),
@@ -42,9 +41,7 @@ export const users = createTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name", { length: 255 }),
   email: text("email", { length: 255 }).notNull(),
-  emailVerified: int("emailVerified", {
-    mode: "timestamp",
-  }).default(sql`CURRENT_TIMESTAMP`),
+  emailVerified: integer("emailVerified", { mode: "timestamp" }).default(sql`(unixepoch())`),
   image: text("image", { length: 255 }),
 });
 
@@ -65,7 +62,7 @@ export const accounts = createTable(
     providerAccountId: text("providerAccountId", { length: 255 }).notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
-    expires_at: int("expires_at"),
+    expires_at: integer("expires_at"),
     token_type: text("token_type", { length: 255 }),
     scope: text("scope", { length: 255 }),
     id_token: text("id_token"),
@@ -90,7 +87,7 @@ export const sessions = createTable(
     userId: text("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    expires: integer("expires", { mode: "timestamp" }).notNull(),
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
@@ -106,7 +103,7 @@ export const verificationTokens = createTable(
   {
     identifier: text("identifier", { length: 255 }).notNull(),
     token: text("token", { length: 255 }).notNull(),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    expires: integer("expires", { mode: "timestamp" }).notNull(),
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
