@@ -73,7 +73,7 @@ async function CrudShowcase() {
     <div className={styles.showcaseContainer}>
       {latestPost ? (
         <p className={styles.showcaseText}>
-          Your most recent post: {latestPost.name}
+          Your most recent post:{latestPost.createdAt.toDateString()} {latestPost.name}
         </p>
       ) : (
         <p className={styles.showcaseText}>You have no posts yet.</p>
